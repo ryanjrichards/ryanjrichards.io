@@ -8,6 +8,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "Ryan J Richards - Enterprise Sales Engineer",
   description: "Portfolio of Ryan J Richards, Enterprise Sales Engineer at Datadog based in the Greater Cleveland area, specializing in cloud observability and AI solutions.",
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/favicon.svg'
+  }
 };
 
 export default function RootLayout({
@@ -48,7 +52,7 @@ export default function RootLayout({
                     defaultPrivacyLevel: 'mask-user-input',
                     allowedTracingUrls: [
                       window.location.origin,
-                      /https:\\/\\/api\\..*\\.richards-homelab\\.com/
+                      /https:\/\/api\..*\.richards-homelab\.com/
                     ],
                     sessionSampleRate: 100,
                     sessionReplaySampleRate: 100
@@ -70,4 +74,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-} 
+}

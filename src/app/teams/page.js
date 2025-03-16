@@ -33,7 +33,7 @@ export default async function Teams() {
         name: "Rutgers Scarlet Knights",
         league: "NCAA",
         conference: "Big Ten",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Rutgers_Scarlet_Knights_logo.svg/1200px-Rutgers_Scarlet_Knights_logo.svg.png",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/b/b6/Rutgers_Scarlet_Knights_logo.svg",
         description: "RUUUUU! The birthplace of college football.",
         colors: ["#CC0033", "#000000"]
       },
@@ -59,7 +59,7 @@ export default async function Teams() {
         name: "Málaga CF",
         league: "Primera Federación",
         conference: "Group 2",
-        logo: "https://upload.wikimedia.org/wikipedia/en/thumb/d/d6/M%C3%A1laga_CF.svg/1200px-M%C3%A1laga_CF.svg.png",
+        logo: "https://upload.wikimedia.org/wikipedia/en/thumb/6/6d/M%C3%A1laga_CF.svg/1280px-M%C3%A1laga_CF.svg.png?20170118002740",
         description: "¡Vamos Málaga! Supporting the local club where my in-laws spend part of their year.",
         colors: ["#0091CE", "#FFFFFF"]
       }
@@ -69,7 +69,7 @@ export default async function Teams() {
         name: "Leicester Tigers",
         league: "Premiership Rugby",
         conference: "English Premiership",
-        logo: "https://upload.wikimedia.org/wikipedia/en/thumb/3/3d/Leicester_Tigers_logo.svg/1200px-Leicester_Tigers_logo.svg.png",
+        logo: "https://upload.wikimedia.org/wikipedia/en/thumb/a/ac/Leicester_Tigers_logo.svg/1280px-Leicester_Tigers_logo.svg.png",
         description: "Tigers! Connected through family - my wife's cousin plays for the team.",
         colors: ["#006F53", "#FFFFFF", "#000000"]
       }

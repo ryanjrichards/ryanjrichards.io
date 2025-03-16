@@ -27,12 +27,8 @@ export default function TeamLogo({ src, alt, teamImage }: TeamLogoProps) {
           fill
           className="object-contain p-8"
           unoptimized={src.endsWith('.svg')}
-          onError={(e) => {
-            e.currentTarget.style.opacity = '0.5';
-            e.currentTarget.style.backgroundColor = '#f0f0f0';
-          }}
         />
       )}
     </>
   );
-} 
+}
