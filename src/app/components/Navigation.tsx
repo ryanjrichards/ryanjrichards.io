@@ -49,6 +49,7 @@ export default function Navigation() {
               <NavLink href="/projects">Projects</NavLink>
               <NavLink href="/teams">My Teams</NavLink>
               <NavLink href="/travel">Travel</NavLink>
+              <NavLink href="/chatbot">Chat</NavLink>
               <NavLink href="/contact">Contact</NavLink>
               <div className="flex items-center space-x-4 ml-6 border-l border-foreground/10 pl-6">
                 <a
@@ -133,6 +134,9 @@ export default function Navigation() {
               </Link>
               <Link href="/travel" className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
                 Travel
+              </Link>
+              <Link href="/chatbot" className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
+                Chat
               </Link>
               <Link href="/contact" className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
                 Contact
