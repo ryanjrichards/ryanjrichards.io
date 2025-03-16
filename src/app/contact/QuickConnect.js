@@ -1,15 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EnvelopeIcon } from '@heroicons/react/24/outline';
 
 export default function QuickConnect() {
   const [copied, setCopied] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Set isMounted to true once component mounts
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleCopyEmail = async () => {
-    await navigator.clipboard.writeText('ryan.richards@datadoghq.com');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (isMounted && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText('ryan.richards@datadoghq.com');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (error) {
+        console.error('Failed to copy email: ', error);
+      }
+    }
   };
 
   return (
@@ -22,6 +34,7 @@ export default function QuickConnect() {
         <button
           onClick={handleCopyEmail}
           className="w-full rounded-lg bg-accent/10 text-accent p-4 hover:bg-accent/20 transition-colors text-left flex justify-between items-center"
+          disabled={!isMounted}
         >
           <span>ryan.richards@datadoghq.com</span>
           <span className="text-sm">{copied ? 'Copied!' : 'Copy'}</span>
