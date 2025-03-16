@@ -42,7 +42,7 @@ export default function Home() {
       {/* Quick Links */}
 <section className="py-20 bg-background">
   <div className="max-w-5xl mx-auto px-4">
-    <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-8">
+    <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-8">
       <Link href="/about" className="group">
         <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-foreground/10 transition-colors">
           <h2 className="text-xl font-semibold mb-2">About</h2>
@@ -55,16 +55,22 @@ export default function Home() {
           <p className="text-foreground/70">Explore my work in cloud observability and AI implementation.</p>
         </div>
       </Link>
-      <Link href="/chatbot" className="group">
-        <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-accent/10 hover:border-accent/30 transition-colors">
-          <h2 className="text-xl font-semibold mb-2">AI Chat</h2>
-          <p className="text-foreground/70">Have a conversation with my AI assistant to learn more about me.</p>
-        </div>
-      </Link>
       <Link href="/teams" className="group">
         <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-foreground/10 transition-colors">
           <h2 className="text-xl font-semibold mb-2">My Teams</h2>
           <p className="text-foreground/70">Check out the sports teams I support across different leagues.</p>
+        </div>
+      </Link>
+      <Link href="/travel" className="group">
+        <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-foreground/10 transition-colors">
+          <h2 className="text-xl font-semibold mb-2">Travel</h2>
+          <p className="text-foreground/70">See photos and stories from my adventures around the world.</p>
+        </div>
+      </Link>
+      <Link href="/chatbot" className="group">
+        <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-accent/10 hover:border-accent/30 transition-colors">
+          <h2 className="text-xl font-semibold mb-2">AI Chat</h2>
+          <p className="text-foreground/70">Have a conversation with my AI assistant to learn more about me.</p>
         </div>
       </Link>
       <Link href="/contact" className="group">
