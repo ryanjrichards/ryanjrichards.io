@@ -5,22 +5,57 @@ import { EnvelopeIcon } from '@heroicons/react/24/outline';
 
 export default function QuickConnect() {
   const [copied, setCopied] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
-  // Set isMounted to true once component mounts
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const handleCopyEmail = async () => {
-    if (isMounted && navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText('ryan.richards@datadoghq.com');
+  // Handle copying email with fallback methods
+  const handleCopyEmail = () => {
+    const email = 'ryan.richards95@gmail.com';
+    
+    // Try the modern clipboard API first
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(email)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch(() => {
+          // Fallback for clipboard API failure
+          fallbackCopyTextToClipboard(email);
+        });
+    } else {
+      // Fallback for browsers without clipboard API
+      fallbackCopyTextToClipboard(email);
+    }
+  };
+  
+  // Fallback method using document.execCommand
+  const fallbackCopyTextToClipboard = (text) => {
+    try {
+      // Create temporary input element
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      
+      // Make the textarea out of viewport
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      
+      // Select and copy
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      
+      // Cleanup
+      document.body.removeChild(textArea);
+      
+      // Show success message
+      if (successful) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-      } catch (error) {
-        console.error('Failed to copy email: ', error);
       }
+    } catch (err) {
+      console.error('Fallback: Could not copy text: ', err);
     }
   };
 
@@ -33,11 +68,21 @@ export default function QuickConnect() {
       <div className="flex flex-col gap-4">
         <button
           onClick={handleCopyEmail}
-          className="w-full rounded-lg bg-accent/10 text-accent p-4 hover:bg-accent/20 transition-colors text-left flex justify-between items-center"
-          disabled={!isMounted}
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+          className={`
+            w-full rounded-lg p-4 
+            text-left flex justify-between items-center
+            cursor-pointer transition-all duration-300
+            ${copied 
+              ? "bg-green-100 text-green-800 border-2 border-green-500" 
+              : "bg-accent/10 text-accent hover:bg-accent/20 hover:shadow-md"}
+          `}
         >
-          <span>ryan.richards@datadoghq.com</span>
-          <span className="text-sm">{copied ? 'Copied!' : 'Copy'}</span>
+          <span>ryan.richards95@gmail.com</span>
+          <span className="text-sm font-medium">
+            {copied ? '✓ Copied!' : 'Copy'}
+          </span>
         </button>
         <div className="flex gap-4 justify-center mt-4">
           <a
