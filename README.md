@@ -1,77 +1,36 @@
-# Next.js Docker Application
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-This is a Next.js application configured for Docker deployment.
+## Getting Started
 
-## Development
-
-For local development without Docker:
+First, run the development server:
 
 ```bash
-npm install
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-The application will be available at http://localhost:3000.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Docker Development
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-To build and run the Docker container locally:
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-```bash
-# Build the Docker image
-docker build -t my-nextjs-app .
+## Learn More
 
-# Run the container
-docker run -p 3000:3000 my-nextjs-app
-```
+To learn more about Next.js, take a look at the following resources:
 
-Or, using Docker Compose:
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-```bash
-docker-compose up
-```
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-The application will be available at http://localhost:3000.
+## Deploy on Vercel
 
-## Production Deployment
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-For production deployment:
-
-1. Build the Docker image:
-   ```bash
-   docker build -t my-nextjs-app:production .
-   ```
-
-2. Push to your container registry (if applicable):
-   ```bash
-   docker tag my-nextjs-app:production your-registry.com/my-nextjs-app:production
-   docker push your-registry.com/my-nextjs-app:production
-   ```
-
-3. On your server, pull and run the image:
-   ```bash
-   docker pull your-registry.com/my-nextjs-app:production
-   docker run -d -p 3000:3000 --restart always your-registry.com/my-nextjs-app:production
-   ```
-
-## Environment Variables
-
-To use environment variables, add them to your `.env` file (for local development) or pass them to the Docker container:
-
-```bash
-docker run -p 3000:3000 -e DATABASE_URL=your-url my-nextjs-app
-```
-
-Or add them to the `docker-compose.yml` file:
-
-```yaml
-environment:
-  - DATABASE_URL=your-url
-  - NEXT_PUBLIC_API_URL=https://api.example.com
-```
-
-## Notes
-
-- The application uses the Next.js standalone output option for optimal Docker image size.
-- The Docker image runs as a non-root user for better security.
-- The application is configured to run on port 3000 by default.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
