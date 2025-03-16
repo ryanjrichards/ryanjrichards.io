@@ -6,7 +6,7 @@ import Navigation from "./components/Navigation";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Ryan K Richards - Enterprise Sales Engineer",
+  title: "Ryan J Richards - Enterprise Sales Engineer",
   description: "Portfolio of Ryan J Richards, Enterprise Sales Engineer at Datadog based in the Greater Cleveland area, specializing in cloud observability and AI solutions.",
 };
 
