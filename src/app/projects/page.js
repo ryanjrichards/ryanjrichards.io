@@ -1,4 +1,23 @@
-import Image from "next/image";
+import ProjectCard from "@/components/ProjectCard";
+
+const projects = {
+  motorcycle: [
+    {
+      title: "Ninja 650 Exhaust Upgrade",
+      description: "Custom installation of a performance exhaust system on my Kawasaki Ninja 650, enhancing both aesthetics and performance.",
+      imageSrc: "/images/motorcycle/PXL_20230713_003145922.jpg",
+      imageAlt: "Ninja 650 Exhaust Installation",
+      tags: ["Motorcycle", "DIY", "Performance"]
+    },
+    {
+      title: "MSF Course on Harley X350",
+      description: "Completed the Motorcycle Safety Foundation course on the Harley Davidson X350, a bike designed for the Chinese market in partnership with QianJiang. This experience provided foundational riding skills and safety knowledge.",
+      imageSrc: "/images/motorcycle/PXL_20230427_234453049.jpg",
+      imageAlt: "Harley Davidson X350 MSF Course",
+      tags: ["Motorcycle", "Training", "Safety", "Harley Davidson"]
+    }
+  ]
+};
 
 export default function Projects() {
   return (
@@ -7,53 +26,16 @@ export default function Projects() {
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-4xl font-bold mb-8 font-[family-name:var(--font-geist-mono)]">Projects</h1>
           <p className="text-foreground/70 mb-12">
-            Here are some key projects that showcase my expertise in cloud solutions and AI implementation.
+            A showcase of my hands-on motorcycle projects and modifications.
           </p>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-background rounded-lg overflow-hidden border border-foreground/10">
-              <div className="aspect-video relative">
-                <Image
-                  src="https://placehold.co/600x400/png"
-                  alt="Cloud Observability Solutions"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">Enterprise Cloud Solutions</h3>
-                <p className="text-foreground/70 mb-4">
-                  Helping enterprises optimize their cloud infrastructure through comprehensive observability and monitoring solutions.
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="px-2 py-1 bg-foreground/5 rounded-full text-sm">AWS</span>
-                  <span className="px-2 py-1 bg-foreground/5 rounded-full text-sm">Azure</span>
-                  <span className="px-2 py-1 bg-foreground/5 rounded-full text-sm">Datadog</span>
-                </div>
-                <a href="https://www.datadoghq.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Learn More →</a>
-              </div>
-            </div>
 
-            <div className="bg-background rounded-lg overflow-hidden border border-foreground/10">
-              <div className="aspect-video relative">
-                <Image
-                  src="https://placehold.co/600x400/png"
-                  alt="AI Solutions Architecture"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">AI/ML Solutions Architecture</h3>
-                <p className="text-foreground/70 mb-4">
-                  Designing and implementing AI-driven solutions for enterprise clients, focusing on practical business outcomes.
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="px-2 py-1 bg-foreground/5 rounded-full text-sm">AI/ML</span>
-                  <span className="px-2 py-1 bg-foreground/5 rounded-full text-sm">LLMs</span>
-                  <span className="px-2 py-1 bg-foreground/5 rounded-full text-sm">Cloud Architecture</span>
-                </div>
-                <a href="https://www.linkedin.com/in/ryanjrichards" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View Profile →</a>
-              </div>
+          {/* Motorcycle Projects */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-6 font-[family-name:var(--font-geist-mono)]">Motorcycle Projects</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              {projects.motorcycle.map((project) => (
+                <ProjectCard key={project.title} {...project} />
+              ))}
             </div>
           </div>
         </div>

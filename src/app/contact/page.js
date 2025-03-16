@@ -1,52 +1,34 @@
+import { MapPinIcon, ClockIcon } from '@heroicons/react/24/outline';
+import ContactForm from './ContactForm';
+import QuickConnect from './QuickConnect';
+
 export default function Contact() {
   return (
-    <div className="pt-16">
-      <section className="py-20 bg-background">
-        <div className="max-w-5xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-8 font-[family-name:var(--font-geist-mono)]">Contact</h1>
-          <p className="text-foreground/70 mb-12">
-            Let&apos;s connect! Whether you&apos;re interested in cloud observability, AI solutions, or just want to talk tech, I&apos;m always happy to chat.
-          </p>
-          <div className="max-w-2xl mx-auto">
-            <div className="flex flex-col gap-8">
-              <div className="bg-foreground/5 rounded-lg p-6 border border-foreground/10">
-                <h2 className="text-xl font-semibold mb-4">Get in Touch</h2>
-                <div className="flex gap-4 justify-center">
-                  <a
-                    href="mailto:ryan.richards@datadoghq.com"
-                    className="rounded-full bg-foreground text-background px-6 py-3 hover:bg-foreground/90 transition-colors"
-                  >
-                    Email Me
-                  </a>
-                  <a
-                    href="https://github.com/ryanjrichards"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full border border-foreground/10 px-6 py-3 hover:bg-foreground/5 transition-colors"
-                  >
-                    GitHub
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/in/ryanjrichards"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full border border-foreground/10 px-6 py-3 hover:bg-foreground/5 transition-colors"
-                  >
-                    LinkedIn
-                  </a>
-                </div>
-              </div>
-              
-              <div className="bg-foreground/5 rounded-lg p-6 border border-foreground/10">
-                <h2 className="text-xl font-semibold mb-4">Location</h2>
-                <p className="text-foreground/70">
-                  Based in Greater Cleveland, serving enterprise clients across the Ohio River Valley region.
-                </p>
-              </div>
-            </div>
+    <div className="container mx-auto px-4 py-12">
+      <h1 className="text-4xl font-bold mb-8">Contact</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-8">
+          <QuickConnect />
+          
+          <div className="bg-foreground/5 rounded-lg p-8 border border-foreground/10 hover:border-foreground/20 transition-colors">
+            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+              <MapPinIcon className="w-5 h-5" />
+              Local Presence
+            </h2>
+            <p className="text-foreground/80">
+              Based in Greater Cleveland, I enjoy meeting with clients in person throughout Northeast Ohio 
+              and the surrounding region. I believe face-to-face meetings build stronger relationships and 
+              lead to better understanding of your business needs. Whether it's a coffee chat in downtown 
+              Cleveland or a visit to your office, I'm always happy to connect locally.
+            </p>
           </div>
         </div>
-      </section>
+
+        <div className="bg-foreground/5 rounded-lg p-8 border border-foreground/10 hover:border-foreground/20 transition-colors">
+          <h2 className="text-xl font-semibold mb-6">Send a Message</h2>
+          <ContactForm />
+        </div>
+      </div>
     </div>
   );
 } 
