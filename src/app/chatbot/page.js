@@ -11,7 +11,7 @@ export default function ChatbotPage() {
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-4xl font-bold mb-6 font-[family-name:var(--font-geist-mono)]">AI Assistant</h1>
           <p className="text-foreground/70 mb-8">
-            I've built this interactive AI chatbot to help you learn more about my background, skills, 
+            I&apos;ve built this interactive AI chatbot to help you learn more about my background, skills, 
             and experience. Feel free to ask about my work at Datadog, technical expertise, or interests!
           </p>
           
