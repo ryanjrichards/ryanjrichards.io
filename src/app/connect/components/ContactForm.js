@@ -3,9 +3,7 @@
 import { useState } from 'react';
 
 // Define the backend URL - would typically come from environment variables
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
-
-;
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -32,8 +30,8 @@ export default function ContactForm() {
     setStatus({ isSubmitting: true, isSubmitted: false, error: null });
 
     try {
-      // Send the request to the Flask backend instead of the Next.js API route
-      const response = await fetch(`${BACKEND_URL}/api/contact`, {
+      // Send the request to the Next.js API route
+      const response = await fetch(`${BACKEND_URL}/api/connect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,8 +81,7 @@ export default function ContactForm() {
           value={formData.name}
           onChange={handleChange}
           required
-
-  autoComplete="name"  // Add this line
+          autoComplete="name"
           className="w-full px-4 py-2 rounded-lg bg-background border border-foreground/10 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
           placeholder="Your name"
         />
@@ -101,7 +98,7 @@ export default function ContactForm() {
           value={formData.email}
           onChange={handleChange}
           required
-          autoComplete="email" 
+          autoComplete="email"
           className="w-full px-4 py-2 rounded-lg bg-background border border-foreground/10 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
           placeholder="your.email@example.com"
         />
