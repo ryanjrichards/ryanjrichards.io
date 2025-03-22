@@ -8,7 +8,7 @@ export default async function Teams() {
         league: "NFL",
         conference: "AFC North",
         logo: "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png",
-        description: "Proud member of the Dawg Pound and passionate Cleveland sports fan.",
+        description: "Here We Go Brownies Here We Go! - Woof! Woof!",
         colors: ["#311D00", "#FF3C00", "#FFFFFF"]
       },
       {
@@ -34,7 +34,7 @@ export default async function Teams() {
         league: "NCAA",
         conference: "Big Ten",
         logo: "https://upload.wikimedia.org/wikipedia/commons/b/b6/Rutgers_Scarlet_Knights_logo.svg",
-        description: "RUUUUU! The birthplace of college football.",
+        description: "RUUUUU!",
         colors: ["#CC0033", "#000000"]
       },
       {
@@ -42,7 +42,7 @@ export default async function Teams() {
         league: "NCAA",
         conference: "Big Ten",
         logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Michigan_Wolverines_logo.svg/1200px-Michigan_Wolverines_logo.svg.png",
-        description: "Go Blue! Supporting my wife's alma mater.",
+        description: "Go Blue!",
         colors: ["#00274C", "#FFCB05"]
       }
     ],
@@ -60,7 +60,7 @@ export default async function Teams() {
         league: "Primera Federación",
         conference: "Group 2",
         logo: "https://upload.wikimedia.org/wikipedia/en/thumb/6/6d/M%C3%A1laga_CF.svg/1280px-M%C3%A1laga_CF.svg.png?20170118002740",
-        description: "¡Vamos Málaga! Supporting the local club where my in-laws spend part of their year.",
+        description: "¡Vamos Málaga!",
         colors: ["#0091CE", "#FFFFFF"]
       }
     ],
@@ -70,22 +70,22 @@ export default async function Teams() {
         league: "Premiership Rugby",
         conference: "English Premiership",
         logo: "https://upload.wikimedia.org/wikipedia/en/thumb/a/ac/Leicester_Tigers_logo.svg/1280px-Leicester_Tigers_logo.svg.png",
-        description: "Tigers! Connected through family - my wife's cousin plays for the team.",
+        description: "Tigers in the house",
         colors: ["#006F53", "#FFFFFF", "#000000"]
       }
     ]
   };
 
   const categoryTitles = {
-    nfl: "Professional Football",
+    nfl: "NFL",
     college: "College Football",
     soccer: "Soccer",
     rugby: "Rugby"
   };
 
   return (
-    <div className="pt-16">
-      <section className="py-20 bg-background">
+    <div className="container mx-auto">
+<section className="pt-24 pb-20 bg-background">
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-4xl font-bold mb-8 font-[family-name:var(--font-geist-mono)]">My Teams</h1>
           <p className="text-foreground/70 mb-12">

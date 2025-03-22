@@ -2,6 +2,11 @@
 
 import { useState } from 'react';
 
+// Define the backend URL - would typically come from environment variables
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
+
+;
+
 export default function ContactForm() {
   const [formData, setFormData] = useState({
     name: '',
@@ -27,7 +32,8 @@ export default function ContactForm() {
     setStatus({ isSubmitting: true, isSubmitted: false, error: null });
 
     try {
-      const response = await fetch('/api/contact', {
+      // Send the request to the Flask backend instead of the Next.js API route
+      const response = await fetch(`${BACKEND_URL}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,8 +41,11 @@ export default function ContactForm() {
         body: JSON.stringify(formData),
       });
 
+      // Parse the JSON response
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        throw new Error(data.error || 'Failed to send message');
       }
 
       setStatus({
@@ -52,10 +61,11 @@ export default function ContactForm() {
       }, 5000);
 
     } catch (error) {
+      console.error('Contact form error:', error);
       setStatus({
         isSubmitting: false,
         isSubmitted: false,
-        error: 'Failed to send message. Please try again.'
+        error: error.message || 'Failed to send message. Please try again.'
       });
     }
   };
@@ -73,6 +83,8 @@ export default function ContactForm() {
           value={formData.name}
           onChange={handleChange}
           required
+
+  autoComplete="name"  // Add this line
           className="w-full px-4 py-2 rounded-lg bg-background border border-foreground/10 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
           placeholder="Your name"
         />
@@ -89,6 +101,7 @@ export default function ContactForm() {
           value={formData.email}
           onChange={handleChange}
           required
+          autoComplete="email" 
           className="w-full px-4 py-2 rounded-lg bg-background border border-foreground/10 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
           placeholder="your.email@example.com"
         />
@@ -105,6 +118,7 @@ export default function ContactForm() {
           onChange={handleChange}
           required
           rows={4}
+          autoComplete="off"
           className="w-full px-4 py-2 rounded-lg bg-background border border-foreground/10 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors resize-none"
           placeholder="Your message..."
         />
@@ -127,4 +141,4 @@ export default function ContactForm() {
       </button>
     </form>
   );
-} 
+}

@@ -4,7 +4,15 @@ import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({ 
+  href, 
+  children, 
+  onNavigate 
+}: { 
+  href: string; 
+  children: React.ReactNode;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   const isActive = pathname === href;
   
@@ -16,6 +24,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
           ? 'bg-foreground/10 text-foreground' 
           : 'text-foreground/70 hover:bg-foreground/5 hover:text-foreground'
       }`}
+      onClick={onNavigate}
     >
       {children}
     </Link>
@@ -30,6 +39,11 @@ export default function Navigation() {
     setMounted(true);
   }, []);
 
+  // Function to close the mobile menu
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   if (!mounted) {
     return null;
   }
@@ -40,17 +54,17 @@ export default function Navigation() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link href="/" className="flex items-center">
+              <Link href="/" className="flex items-center" onClick={closeMobileMenu}>
                 <span className="text-xl font-bold text-foreground/90 font-[family-name:var(--font-geist-sans)]">Ryan J Richards</span>
               </Link>
             </div>
             <div className="hidden lg:flex lg:items-center lg:space-x-1">
               <NavLink href="/about">About Me</NavLink>
               <NavLink href="/projects">Projects</NavLink>
-              <NavLink href="/teams">My Teams</NavLink>
+              <NavLink href="/fandom">Fandom</NavLink>
               <NavLink href="/travel">Travel</NavLink>
-              <NavLink href="/chatbot">Chat</NavLink>
-              <NavLink href="/contact">Contact</NavLink>
+              <NavLink href="/ai_assistant">AI Assistant</NavLink>
+              <NavLink href="/connect">Connect</NavLink>
               <div className="flex items-center space-x-4 ml-6 border-l border-foreground/10 pl-6">
                 <a
                   href="https://github.com/ryanjrichards"
@@ -105,12 +119,12 @@ export default function Navigation() {
 
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="fixed inset-0 bg-foreground/20 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="fixed inset-0 bg-foreground/20 backdrop-blur-sm" onClick={closeMobileMenu} />
           <nav className="fixed right-0 top-0 bottom-0 w-3/4 max-w-sm bg-background shadow-xl flex flex-col">
             <div className="p-4 flex justify-between items-center border-b border-foreground/10">
               <h2 className="font-semibold text-lg font-[family-name:var(--font-geist-sans)]">Menu</h2>
               <button
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={closeMobileMenu}
                 className="p-2 rounded-md hover:bg-foreground/5 text-foreground/70 hover:text-foreground"
                 aria-label="Close menu"
               >
@@ -120,26 +134,54 @@ export default function Navigation() {
               </button>
             </div>
             <div className="px-2 py-4 flex flex-col space-y-1">
-              <Link href="/" className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
+              <Link 
+                href="/" 
+                className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                onClick={closeMobileMenu}
+              >
                 Home
               </Link>
-              <Link href="/about" className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
+              <Link 
+                href="/about" 
+                className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                onClick={closeMobileMenu}
+              >
                 About Me
               </Link>
-              <Link href="/projects" className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
+              <Link 
+                href="/projects" 
+                className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                onClick={closeMobileMenu}
+              >
                 Projects
               </Link>
-              <Link href="/teams" className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
-                My Teams
+              <Link 
+                href="/fandom" 
+                className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                onClick={closeMobileMenu}
+              >
+                Fandom
               </Link>
-              <Link href="/travel" className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
+              <Link 
+                href="/travel" 
+                className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                onClick={closeMobileMenu}
+              >
                 Travel
               </Link>
-              <Link href="/chatbot" className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
-                Chat
+              <Link 
+                href="/ai_assistant" 
+                className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                onClick={closeMobileMenu}
+              >
+                AI Assistant
               </Link>
-              <Link href="/contact" className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
-                Contact
+              <Link 
+                href="/connect" 
+                className="px-3 py-2 rounded-md text-base font-medium text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                onClick={closeMobileMenu}
+              >
+                Connect
               </Link>
             </div>
             <div className="mt-auto p-4 border-t border-foreground/10">
@@ -173,4 +215,4 @@ export default function Navigation() {
       )}
     </>
   );
-} 
+}

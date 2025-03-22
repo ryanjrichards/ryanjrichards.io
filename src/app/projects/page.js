@@ -21,8 +21,8 @@ const projects = {
 
 export default function Projects() {
   return (
-    <div className="pt-16">
-      <section className="py-20 bg-background">
+<div className="container mx-auto">
+<section className="pt-24 pb-20 bg-background">
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-4xl font-bold mb-8 font-[family-name:var(--font-geist-mono)]">Projects</h1>
           <p className="text-foreground/70 mb-12">

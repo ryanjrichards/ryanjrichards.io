@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export default function About() {
   return (
-    <div className="pt-16">
-      <section className="py-20 bg-background">
+<div className="container mx-auto">
+<section className="pt-24 pb-20 bg-background">
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-4xl font-bold mb-8 font-[family-name:var(--font-geist-mono)]">About Me</h1>
           <div className="grid md:grid-cols-2 gap-12">

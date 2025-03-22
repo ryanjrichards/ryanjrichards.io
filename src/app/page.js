@@ -38,50 +38,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Quick Links */}
-<section className="py-20 bg-background">
-  <div className="max-w-5xl mx-auto px-4">
-    <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-8">
-      <Link href="/about" className="group">
-        <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-foreground/10 transition-colors">
-          <h2 className="text-xl font-semibold mb-2">About</h2>
-          <p className="text-foreground/70">Learn about my background and expertise in cloud solutions and AI.</p>
-        </div>
-      </Link>
-      <Link href="/projects" className="group">
-        <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-foreground/10 transition-colors">
-          <h2 className="text-xl font-semibold mb-2">Projects</h2>
-          <p className="text-foreground/70">Explore my work in cloud observability and AI implementation.</p>
-        </div>
-      </Link>
-      <Link href="/teams" className="group">
-        <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-foreground/10 transition-colors">
-          <h2 className="text-xl font-semibold mb-2">My Teams</h2>
-          <p className="text-foreground/70">Check out the sports teams I support across different leagues.</p>
-        </div>
-      </Link>
-      <Link href="/travel" className="group">
-        <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-foreground/10 transition-colors">
-          <h2 className="text-xl font-semibold mb-2">Travel</h2>
-          <p className="text-foreground/70">See photos and stories from my adventures around the world.</p>
-        </div>
-      </Link>
-      <Link href="/chatbot" className="group">
-        <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-accent/10 hover:border-accent/30 transition-colors">
-          <h2 className="text-xl font-semibold mb-2">AI Chat</h2>
-          <p className="text-foreground/70">Have a conversation with my AI assistant to learn more about me.</p>
-        </div>
-      </Link>
-      <Link href="/contact" className="group">
-        <div className="h-full bg-foreground/5 rounded-lg p-6 border border-foreground/10 hover:bg-foreground/10 transition-colors">
-          <h2 className="text-xl font-semibold mb-2">Contact</h2>
-          <p className="text-foreground/70">Get in touch to discuss cloud solutions or just to connect.</p>
-        </div>
-      </Link>
-    </div>
-  </div>
-</section>
     </main>
   );
 }

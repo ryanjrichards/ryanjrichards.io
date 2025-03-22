@@ -6,8 +6,8 @@ export const metadata = {
 
 export default function ChatbotPage() {
   return (
-    <div className="pt-16">
-      <section className="py-20 bg-background">
+    <div className="container mx-auto">
+<section className="pt-24 pb-20 bg-background">
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-4xl font-bold mb-6 font-[family-name:var(--font-geist-mono)]">AI Assistant</h1>
           <p className="text-foreground/70 mb-8">
