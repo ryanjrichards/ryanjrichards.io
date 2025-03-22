@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Build the Next.js application
-RUN npm run build
+RUN NODE_ENV=productionß OPENAI_API_KEY=dummy npm run build
 
 # Expose the port Next.js runs on
 EXPOSE 3000

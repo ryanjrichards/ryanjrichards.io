@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 
 // Initialize OpenAI client with Groq API base
 const openai = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
   baseURL: 'https://api.groq.com/openai/v1',
 });
 

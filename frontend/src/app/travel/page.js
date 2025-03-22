@@ -75,18 +75,23 @@ function MapComponent() {
   const animationFrame = useRef(null);
 
   useEffect(() => {
-    // Dynamically import mapbox-gl
-    import('mapbox-gl').then((mapboxModule) => {
+  // Dynamically import mapbox-gl
+  import('mapbox-gl')
+    .then((mapboxModule) => {
+      console.log("Mapbox loaded successfully");
       setMapboxgl(mapboxModule.default);
+    })
+    .catch(error => {
+      console.error("Error loading Mapbox:", error);
     });
-  }, []);
+}, []);
 
-  useEffect(() => {
-    if (!mapboxgl || !process.env.NEXT_PUBLIC_MAPBOX_TOKEN) return;
-    if (map.current) return;
+useEffect(() => {
+  if (!mapboxgl || !process.env.NEXT_PUBLIC_MAPBOX_TOKEN) return;
+  if (map.current) return;
 
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-    
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  
     // Use light style
     const styleUrl = 'mapbox://styles/mapbox/light-v11';
     

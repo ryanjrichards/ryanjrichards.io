@@ -43,8 +43,7 @@ Create a `.env` file in the root of the `frontend` directory and add the followi
 
 ```
 NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token
-GROQ_API_KEY=your_groq_api_key
-NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
+OPENAI_API_KEY=your_groq_api_key
 ```
 
 ### Running the Application
