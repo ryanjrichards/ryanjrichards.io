@@ -1,4 +1,4 @@
-import TeamLogo from "@/components/TeamLogo";
+import TeamLogo from "./components/TeamLogo";
 
 export default async function Teams() {
   const teamsByCategory = {
