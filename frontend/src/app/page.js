@@ -3,10 +3,10 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main>
-      {/* Hero Section */}
-      <section className="min-h-[90vh] flex items-center justify-center bg-gradient-to-b from-background to-foreground/5">
-        <div className="max-w-5xl mx-auto px-4 py-20 text-center">
+    <main className="min-h-screen flex flex-col">
+      {/* Hero Section - Full viewport height */}
+      <section className="flex-1 flex items-center justify-center bg-gradient-to-b from-background to-foreground/5">
+        <div className="max-w-5xl mx-auto px-4 py-12 text-center">
           <div className="relative w-40 h-40 mx-auto mb-8">
             <Image
               src="/images/IMG_9050.JPG"
@@ -30,7 +30,7 @@ export default function Home() {
               Learn More
             </Link>
             <Link
-              href="/contact"
+              href="/connect"
               className="rounded-full border border-foreground/10 px-6 py-3 hover:bg-foreground/5 transition-colors"
             >
               Get in Touch
@@ -40,4 +40,4 @@ export default function Home() {
       </section>
     </main>
   );
-}
+}ç
