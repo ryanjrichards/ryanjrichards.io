@@ -14,14 +14,11 @@ export const metadata = {
 };
 
 export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) 
-{
-
-
-  return (
+     children,
+   }: {
+     children: React.ReactNode;
+   }) {
+     return (
     <html lang="en">
       <body className={inter.className}>
         <Navigation />
@@ -30,3 +27,4 @@ export default function RootLayout({
     </html>
   );
 }
+

@@ -2,90 +2,20 @@
 
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-
-// Add sun position calculation helper
-function calculateSunPosition() {
-  const date = new Date();
-  const time = date.getUTCHours() + (date.getUTCMinutes() / 60);
-  // Approximate sun's longitude based on time (rough calculation)
-  const sunLng = ((time - 12) * 15) - 180;
-  // Approximate sun's latitude based on day of year and season
-  const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-  const sunLat = 23.5 * Math.sin((dayOfYear - 172) * (2 * Math.PI / 365));
-  return [sunLng, sunLat];
-}
-
-// Define locations data
-const locations = {
-  lived: [
-    {
-      name: "Mentor, Ohio",
-      coordinates: [-81.6944, 41.4993],
-      type: "lived"
-    },
-    {
-      name: "Ocean Beach, New Jersey",
-      coordinates: [-74.1679, 39.9454],
-      type: "lived"
-    },
-    {
-      name: "Glenmoore, PA",
-      coordinates: [-75.7327, 40.0537],
-      type: "lived"
-    },
-    {
-      name: "Oakland, PA",
-      coordinates: [-79.9959, 40.4406],
-      type: "lived"
-    },
-    {
-      name: "Ann Arbor, Michigan",
-      coordinates: [-83.7430, 42.2808],
-      type: "lived"
-    },
-    {
-      name: "London, UK",
-      coordinates: [-0.1276, 51.5072],
-      type: "lived"
-    },
-    {
-      name: "Singapore",
-      coordinates: [103.8198, 1.3521],
-      type: "lived"
-    },
-    {
-      name: "Kuala Lumpur, Malaysia",
-      coordinates: [101.6869, 3.1390],
-      type: "lived"
-    },
-    {
-      name: "Shanghai, China",
-      coordinates: [121.4737, 31.2304],
-      type: "lived"
-    }
-  ]
-};
+import './page.css';
+// Import the CSS for Mapbox GL JS
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 // Create a dynamic Map component that only loads on the client side
 function MapComponent() {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [mapboxgl, setMapboxgl] = useState(null);
-  const [mapboxToken, setMapboxToken] = useState('');
-  const sunPosition = useRef(calculateSunPosition());
-  const animationFrame = useRef(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Verify token is available and log helpful error message if not
-    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-    if (!token) {
-      console.error('Mapbox token is missing! Check your .env.local file');
-      return;
-    }
-    
-    setMapboxToken(token);
-    
-    // Dynamically import mapbox-gl with error handling
+    // Load mapbox-gl
     import('mapbox-gl')
       .then((mapboxModule) => {
         console.log("Mapbox loaded successfully");
@@ -93,399 +23,184 @@ function MapComponent() {
       })
       .catch(error => {
         console.error("Error loading Mapbox:", error);
+        setError("Failed to load Mapbox library");
       });
   }, []);
 
   useEffect(() => {
-    if (!mapboxgl || !mapboxToken) return;
+    if (!mapboxgl) return;
     if (map.current) return;
 
     try {
-      // Explicitly set Mapbox config to handle CORS and retries
-      mapboxgl.config.REQUIRE_ACCESS_TOKEN = true;
-      mapboxgl.accessToken = mapboxToken;
+      // Get token from environment variable
+      const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
       
-      // Use light style with explicit URL
-      const styleUrl = 'mapbox://styles/mapbox/light-v11';
+      if (!token) {
+        console.error('Mapbox token is missing! Check your .env.local file');
+        setError("Mapbox token is missing. Please check your environment variables.");
+        return;
+      }
+
+      console.log("Setting up map with token available:", !!token);
       
-      // Create map with error handling
+      // Set access token
+      mapboxgl.accessToken = token;
+      
+      // Create map with a simple style
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: styleUrl,
-        center: [20, 30],
-        zoom: 1.8,
-        projection: 'globe',
-        maxBounds: [[-180, -85], [180, 85]], // Prevent extreme panning
-        attributionControl: true,
-        preserveDrawingBuffer: true,
-        antialias: true
+        style: 'mapbox://styles/mapbox/light-v11', // Using light-v11 style
+        center: [0, 30],
+        zoom: 1.5,
+        projection: 'mercator', // Use mercator instead of globe for better compatibility
       });
 
-      // Add navigation controls
+      // Add navigation control
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-      // Handle errors during map loading
-      map.current.on('error', (e) => {
-        console.error('Mapbox map error:', e.error);
-      });
-
-      map.current.on('style.load', () => {
-        try {
-          // Enhanced atmosphere effect with space-like background
-          map.current.setFog({
-            color: 'rgb(16, 24, 40)', // deep space color
-            'high-color': 'rgb(23, 36, 84)', // dark blue space
-            'horizon-blend': 0.1,
-            'space-color': 'rgb(0, 0, 15)', // deep space black/blue
-            'star-intensity': 0.8 // more visible stars
-          });
-
-          // Add sun layer
-          map.current.addSource('sun', {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'Point',
-                coordinates: sunPosition.current
-              }
-            }
-          });
-
-          // Add glow source for locations
-          map.current.addSource('glow-source', {
-            'type': 'geojson',
-            'data': {
-              'type': 'FeatureCollection',
-              'features': locations.lived.map(location => ({
-                'type': 'Feature',
-                'geometry': {
-                  'type': 'Point',
-                  'coordinates': location.coordinates
-                }
-              }))
-            }
-          });
-
-          // Add glow layer correctly
-          map.current.addLayer({
-            'id': 'glow',
-            'type': 'circle',
-            'source': 'glow-source',
-            'minzoom': 0,
-            'maxzoom': 22,
-            'paint': {
-              'circle-radius': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                0, 20,  // Size at zoom level 0
-                2, 20,  // Size at zoom level 2
-                4, 20,  // Size at zoom level 4
-                22, 20  // Size at max zoom
-              ],
-              'circle-color': '#FF3C00',
-              'circle-opacity': 0.4,
-              'circle-blur': 1
-            }
-          });
-
-          // Add city lights effect for lived locations
-          locations.lived.forEach((location, index) => {
-            map.current.addSource(`city-light-${index}`, {
-              type: 'geojson',
-              data: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                  type: 'Point',
-                  coordinates: location.coordinates
-                }
-              }
-            });
-
-            // Add city light glow
-            map.current.addLayer({
-              id: `city-glow-${index}`,
-              type: 'circle',
-              source: `city-light-${index}`,
-              minzoom: 0,
-              maxzoom: 22,
-              paint: {
-                'circle-radius': [
-                  'interpolate',
-                  ['linear'],
-                  ['zoom'],
-                  0, 20,  // Size at zoom level 0
-                  2, 20,  // Size at zoom level 2
-                  4, 20,  // Size at zoom level 4
-                  22, 20  // Size at max zoom
-                ],
-                'circle-color': '#ffeb3b',
-                'circle-opacity': 0.15,
-                'circle-blur': 1
-              }
-            });
-          });
-        } catch (layerError) {
-          console.error('Error adding layers:', layerError);
-        }
-      });
-
-      // Update sun position and lighting with error handling
-      const updateSunPosition = () => {
-        if (!map.current || !map.current.isStyleLoaded()) {
-          // If style isn't loaded yet, try again in the next frame
-          animationFrame.current = requestAnimationFrame(updateSunPosition);
-          return;
-        }
-        
-        try {
-          const newSunPosition = calculateSunPosition();
-          sunPosition.current = newSunPosition;
-
-          if (map.current.getSource('sun')) {
-            map.current.getSource('sun').setData({
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'Point',
-                coordinates: newSunPosition
-              }
-            });
-          }
-
-          // Update atmosphere - space-like appearance
-          map.current.setFog({
-            'color': 'rgb(16, 24, 40)', // deep space color
-            'high-color': 'rgb(23, 36, 84)', // dark blue space
-            'horizon-blend': 0.1,
-            'space-color': 'rgb(0, 0, 15)', // deep space black/blue
-            'star-intensity': 0.8 // more visible stars
-          });
-        } catch (error) {
-          console.warn('Error updating map:', error);
-        }
-
-        animationFrame.current = requestAnimationFrame(updateSunPosition);
-      };
-
-      // Start sun position updates
-      updateSunPosition();
-
-      // Add gentle rotation animation - now eastward and faster
-      const startTime = Date.now();
-      const rotateGlobe = () => {
-        if (!map.current) return;
-        
-        try {
-          // Calculate elapsed time
-          const elapsed = Date.now() - startTime;
-          
-          // Complete rotation in 15 seconds
-          const rotationProgress = (elapsed % 15000) / 15000;
-          
-          // Start and end at US view (-95 is roughly central US longitude)
-          const startLng = -95;
-          // Calculate longitude based on progress (rotate eastward)
-          const newLng = startLng + (rotationProgress * 360);
-          
-          map.current.setCenter([newLng, map.current.getCenter().lat]);
-          
-          // Stop rotation after one full spin
-          if (elapsed < 15000) {
-            requestAnimationFrame(rotateGlobe);
-          } else {
-            // Ensure we end exactly at the US view
-            map.current.setCenter([startLng, map.current.getCenter().lat]);
-          }
-        } catch (error) {
-          console.warn('Error in rotation animation:', error);
-        }
-      };
-
+      
+      // Add event listeners for debugging
       map.current.on('load', () => {
-        try {
-          // Start the rotation
-          rotateGlobe();
-
-          // Calculate bounds that include all locations
-          const bounds = new mapboxgl.LngLatBounds();
-          
-          // Extend bounds with all locations
-          locations.lived.forEach(location => {
-            bounds.extend(location.coordinates);
-          });
-
-          // Fit map to show all locations with padding
-          map.current.fitBounds(bounds, {
-            padding: 50,
-            duration: 2000
-          });
-
-          // Create the pulsing dot image ONCE before the loop
-          const size = 150; // Larger radius for general areas
-          const pulsingDot = {
-            width: size,
-            height: size,
-            data: new Uint8Array(size * size * 4),
-            
-            onAdd: function() {
-              const canvas = document.createElement('canvas');
-              canvas.width = this.width;
-              canvas.height = this.height;
-              this.context = canvas.getContext('2d');
-            },
-            
-            render: function() {
-              const duration = 1000;
-              const t = (performance.now() % duration) / duration;
-              
-              const radius = (size / 2) * 0.3;
-              const outerRadius = (size / 2) * 0.7 * t + radius;
-              const context = this.context;
-              
-              context.clearRect(0, 0, this.width, this.height);
-              context.beginPath();
-              context.arc(
-                this.width / 2,
-                this.height / 2,
-                outerRadius,
-                0,
-                Math.PI * 2
-              );
-              context.fillStyle = `rgba(255, 60, 0, ${1 - t})`;
-              context.fill();
-              
-              context.beginPath();
-              context.arc(
-                this.width / 2,
-                this.height / 2,
-                radius,
-                0,
-                Math.PI * 2
-              );
-              context.fillStyle = 'rgba(255, 60, 0, 1)';
-              context.strokeStyle = 'white';
-              context.lineWidth = 2 + 4 * (1 - t);
-              context.fill();
-              context.stroke();
-              
-              this.data = context.getImageData(
-                0,
-                0,
-                this.width,
-                this.height
-              ).data;
-              
-              map.current.triggerRepaint();
-              return true;
-            }
-          };
-
-          // Add the image ONCE before the loop - with error handling
-          if (!map.current.hasImage('pulsing-dot-lived')) {
-            map.current.addImage('pulsing-dot-lived', pulsingDot, { pixelRatio: 2 });
-          }
-
-          // Now add sources and layers for each location
-          locations.lived.forEach(location => {
-            const sourceId = `area-lived-${location.name.replace(/\s+/g, '-').toLowerCase()}`;
-            const layerId = `area-${location.name.replace(/\s+/g, '-').toLowerCase()}`;
-            
-            // Add a layer for the larger radius area
-            map.current.addSource(sourceId, {
-              'type': 'geojson',
-              'data': {
-                'type': 'Feature',
-                'geometry': {
-                  'type': 'Point',
-                  'coordinates': location.coordinates
-                }
-              }
-            });
-
-            map.current.addLayer({
-              'id': layerId,
-              'type': 'symbol',
-              'source': sourceId,
-              'minzoom': 0,
-              'maxzoom': 22,
-              'layout': {
-                'icon-image': 'pulsing-dot-lived',
-                'icon-size': [
-                  'interpolate',
-                  ['linear'],
-                  ['zoom'],
-                  0, 1,    // Size at zoom level 0
-                  2, 1,    // Size at zoom level 2
-                  4, 1,    // Size at zoom level 4
-                  22, 1    // Size at max zoom
-                ],
-                'icon-allow-overlap': true,
-                'icon-ignore-placement': true
-              }
-            });
-
-            // Add popup
-            const popup = new mapboxgl.Popup({
-              closeButton: false,
-              closeOnClick: false
-            });
-
-            map.current.on('mouseenter', layerId, () => {
-              popup.setLngLat(location.coordinates)
-                .setHTML(`<h3 class="font-bold">${location.name}</h3>`)
-                .addTo(map.current);
-            });
-
-            map.current.on('mouseleave', layerId, () => {
-              popup.remove();
-            });
-          });
-
-          // Add space-like atmosphere effect
-          map.current.setFog({
-            'range': [0.8, 8],
-            'color': 'rgb(16, 24, 40)', // deep space color
-            'high-color': 'rgb(23, 36, 84)', // dark blue space
-            'horizon-blend': 0.1,
-            'space-color': 'rgb(0, 0, 15)', // deep space black/blue
-            'star-intensity': 0.8 // more visible stars
-          });
-        } catch (error) {
-          console.error('Error in map load handler:', error);
-        }
+        console.log("Map fully loaded!");
+        setMapLoaded(true);
+        
+        // Add markers for the locations
+        addLocationMarkers();
       });
+      
+      map.current.on('error', (e) => {
+        console.error('Mapbox map error:', e);
+        setError(`Map error: ${e.error?.message || 'Unknown error'}`);
+      });
+      
     } catch (error) {
       console.error('Error initializing Mapbox:', error);
+      setError(`Error initializing map: ${error.message}`);
     }
 
-    return () => {
-      if (animationFrame.current) {
-        cancelAnimationFrame(animationFrame.current);
-      }
-      map.current?.remove();
+    // Function to add markers for locations
+    const addLocationMarkers = () => {
+      if (!map.current) return;
+      
+      const locations = [
+        {
+          name: "Mentor, Ohio",
+          coordinates: [-81.6944, 41.4993],
+        },
+        {
+          name: "Ocean Beach, New Jersey",
+          coordinates: [-74.1679, 39.9454],
+        },
+        {
+          name: "Glenmoore, PA",
+          coordinates: [-75.7327, 40.0537],
+        },
+        {
+          name: "Oakland, PA",
+          coordinates: [-79.9959, 40.4406],
+        },
+        {
+          name: "Ann Arbor, Michigan",
+          coordinates: [-83.7430, 42.2808],
+        },
+        {
+          name: "London, UK",
+          coordinates: [-0.1276, 51.5072],
+        },
+        {
+          name: "Singapore",
+          coordinates: [103.8198, 1.3521],
+        },
+        {
+          name: "Kuala Lumpur, Malaysia",
+          coordinates: [101.6869, 3.1390],
+        },
+        {
+          name: "Shanghai, China",
+          coordinates: [121.4737, 31.2304],
+        }
+      ];
+      
+      // Calculate bounds that include all locations
+      const bounds = new mapboxgl.LngLatBounds();
+      
+      // Add markers and extend bounds
+      locations.forEach(location => {
+        // Extend bounds with location
+        bounds.extend(location.coordinates);
+        
+        // Create marker element
+        const markerEl = document.createElement('div');
+        markerEl.className = 'marker';
+        markerEl.style.width = '15px';
+        markerEl.style.height = '15px';
+        markerEl.style.borderRadius = '50%';
+        markerEl.style.backgroundColor = '#FF3C00';
+        markerEl.style.border = '2px solid white';
+        markerEl.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.3)';
+        
+        // Add marker to map
+        new mapboxgl.Marker(markerEl)
+          .setLngLat(location.coordinates)
+          .setPopup(new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`<h3 class="popup-content" style="margin: 0; padding: 5px;">${location.name}</h3>`))
+          .addTo(map.current);
+      });
+      
+      // Fit map to show all locations with padding
+      map.current.fitBounds(bounds, {
+        padding: 50,
+        duration: 1000
+      });
     };
-  }, [mapboxgl, mapboxToken]);
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+      }
+    };
+  }, [mapboxgl]);
 
   return (
-    <div 
-      ref={mapContainer} 
-      className="w-full h-[700px] rounded-lg overflow-hidden border border-foreground/10 shadow-lg"
-    />
+    <div className="w-full">
+      {error && (
+        <div className="p-4 mb-4 bg-red-50 border border-red-200 rounded-md text-red-700">
+          {error}
+          <div className="mt-2 text-sm">
+            <p>Please check your Mapbox token:</p>
+            <ol className="list-decimal pl-4 mt-1">
+              <li>Verify your token is active in your Mapbox account dashboard</li>
+              <li>Make sure it has the correct scopes (styles:read, fonts:read, etc.)</li>
+              <li>Update your .env.local file with a fresh token</li>
+              <li>Ensure the public URL restrictions (if any) include your development URL</li>
+            </ol>
+          </div>
+        </div>
+      )}
+      
+      <div 
+        ref={mapContainer} 
+        className="w-full h-[500px] rounded-lg overflow-hidden border border-gray-200 shadow-lg"
+      />
+      
+      <div className="mt-2 text-sm text-gray-600 flex items-center">
+        <div className="flex items-center gap-2 mr-4">
+          <div className="w-3 h-3 rounded-full bg-[#FF3C00] border border-white shadow-sm"></div>
+          <span>Places I&apos;ve Lived</span>
+        </div>
+        
+      </div>
+    </div>
   );
 }
 
-// Dynamically import the CSS
+// Dynamically import the component
 const MapWithNoSSR = dynamic(
   () => Promise.resolve(MapComponent),
   { 
     ssr: false,
     loading: () => (
-      <div className="w-full h-[700px] rounded-lg overflow-hidden border border-foreground/10 bg-foreground/5 flex items-center justify-center">
-        <div className="text-foreground/70">Loading map...</div>
+      <div className="w-full h-[500px] bg-gray-100 flex items-center justify-center rounded-lg border border-gray-200">
+        <div className="text-gray-500">Loading map component...</div>
       </div>
     )
   }
@@ -501,13 +216,6 @@ export default function Travel() {
             From Philadelphia to Asia to Cleveland, here&apos;s a map of the places I&apos;ve lived and called home.
           </p>
           
-          <div className="mb-8 flex gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-[#FF3C00]"></div>
-              <span className="text-sm">Places I&apos;ve Lived</span>
-            </div>
-          </div>
-
           <MapWithNoSSR />
         </div>
       </section>

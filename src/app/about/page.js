@@ -14,6 +14,7 @@ export default function About() {
                   src="/images/RyanJRichards_Profile_Picture.jpg"
                   alt="Ryan J Richards"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw" 
                   className="rounded-full object-cover"
                   priority
                 />
