@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import logger from '../../../../utils/logger';
 
 // Rate limiting object (simple implementation)
 const rateLimit = {
@@ -19,6 +20,7 @@ export async function POST(request) {
     const recentRequests = userRequests.filter(time => now - time < rateLimit.windowMs);
     
     if (recentRequests.length >= rateLimit.max) {
+      logger.warn(`Rate limit exceeded for IP: ${ip}`);
       return new NextResponse(
         JSON.stringify({ error: 'Too many requests. Please try again later.' }),
         { status: 429, headers: { 'Access-Control-Allow-Origin': '*' } }
@@ -34,6 +36,7 @@ export async function POST(request) {
 
     // Validate the data
     if (!name || !email || !message) {
+      logger.warn('Validation failed: All fields are required');
       return new NextResponse(
         JSON.stringify({ error: 'All fields are required' }),
         { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } }
@@ -43,6 +46,7 @@ export async function POST(request) {
     // Validate email format
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     if (!emailRegex.test(email)) {
+      logger.warn('Validation failed: Invalid email format');
       return new NextResponse(
         JSON.stringify({ error: 'Invalid email format' }),
         { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } }
@@ -76,9 +80,11 @@ export async function POST(request) {
 
     // Send notification email
     await transporter.sendMail(notificationMailOptions);
+    logger.info('Notification email sent successfully');
 
     // Send confirmation email
     await transporter.sendMail(confirmationMailOptions);
+    logger.info('Confirmation email sent successfully');
 
     // Return success response
     return new NextResponse(
@@ -87,7 +93,7 @@ export async function POST(request) {
     );
 
   } catch (error) {
-    console.error('Contact form error:', error);
+    logger.error('Contact form error:', error);
     return new NextResponse(
       JSON.stringify({ error: 'Something went wrong. Please try again.' }),
       { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } }

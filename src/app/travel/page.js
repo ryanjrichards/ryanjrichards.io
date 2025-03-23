@@ -71,353 +71,396 @@ function MapComponent() {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [mapboxgl, setMapboxgl] = useState(null);
+  const [mapboxToken, setMapboxToken] = useState('');
   const sunPosition = useRef(calculateSunPosition());
   const animationFrame = useRef(null);
 
   useEffect(() => {
-  // Dynamically import mapbox-gl
-  import('mapbox-gl')
-    .then((mapboxModule) => {
-      console.log("Mapbox loaded successfully");
-      setMapboxgl(mapboxModule.default);
-    })
-    .catch(error => {
-      console.error("Error loading Mapbox:", error);
-    });
-}, []);
-
-useEffect(() => {
-  if (!mapboxgl || !process.env.NEXT_PUBLIC_MAPBOX_TOKEN) return;
-  if (map.current) return;
-
-  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-  
-    // Use light style
-    const styleUrl = 'mapbox://styles/mapbox/light-v11';
+    // Verify token is available and log helpful error message if not
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+    if (!token) {
+      console.error('Mapbox token is missing! Check your .env.local file');
+      return;
+    }
     
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: styleUrl,
-      center: [20, 30],
-      zoom: 1.8,
-      projection: 'globe'
-    });
-
-    // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-    map.current.on('style.load', () => {
-      // Enhanced atmosphere effect with space-like background
-      map.current.setFog({
-        color: 'rgb(16, 24, 40)', // deep space color
-        'high-color': 'rgb(23, 36, 84)', // dark blue space
-        'horizon-blend': 0.1,
-        'space-color': 'rgb(0, 0, 15)', // deep space black/blue
-        'star-intensity': 0.8 // more visible stars
+    setMapboxToken(token);
+    
+    // Dynamically import mapbox-gl with error handling
+    import('mapbox-gl')
+      .then((mapboxModule) => {
+        console.log("Mapbox loaded successfully");
+        setMapboxgl(mapboxModule.default);
+      })
+      .catch(error => {
+        console.error("Error loading Mapbox:", error);
       });
+  }, []);
 
-      // Add sun layer
-      map.current.addSource('sun', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'Point',
-            coordinates: sunPosition.current
-          }
-        }
-      });
+  useEffect(() => {
+    if (!mapboxgl || !mapboxToken) return;
+    if (map.current) return;
 
-      // Add glow source for locations
-      map.current.addSource('glow-source', {
-        'type': 'geojson',
-        'data': {
-          'type': 'FeatureCollection',
-          'features': locations.lived.map(location => ({
-            'type': 'Feature',
-            'geometry': {
-              'type': 'Point',
-              'coordinates': location.coordinates
-            }
-          }))
-        }
-      });
-
-      // Add glow layer correctly
-      map.current.addLayer({
-        'id': 'glow',
-        'type': 'circle',
-        'source': 'glow-source',
-        'minzoom': 0,
-        'maxzoom': 22,
-        'paint': {
-          'circle-radius': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            0, 20,  // Size at zoom level 0
-            2, 20,  // Size at zoom level 2
-            4, 20,  // Size at zoom level 4
-            22, 20  // Size at max zoom
-          ],
-          'circle-color': '#FF3C00',
-          'circle-opacity': 0.4,
-          'circle-blur': 1
-        }
-      });
-
-      // Add city lights effect for lived locations
-      locations.lived.forEach((location, index) => {
-        map.current.addSource(`city-light-${index}`, {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'Point',
-              coordinates: location.coordinates
-            }
-          }
-        });
-
-        // Add city light glow
-        map.current.addLayer({
-          id: `city-glow-${index}`,
-          type: 'circle',
-          source: `city-light-${index}`,
-          minzoom: 0,
-          maxzoom: 22,
-          paint: {
-            'circle-radius': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              0, 20,  // Size at zoom level 0
-              2, 20,  // Size at zoom level 2
-              4, 20,  // Size at zoom level 4
-              22, 20  // Size at max zoom
-            ],
-            'circle-color': '#ffeb3b',
-            'circle-opacity': 0.15,
-            'circle-blur': 1
-          }
-        });
-      });
-    });
-
-    // Update sun position and lighting
-    const updateSunPosition = () => {
-      if (!map.current || !map.current.isStyleLoaded()) {
-        // If style isn't loaded yet, try again in the next frame
-        animationFrame.current = requestAnimationFrame(updateSunPosition);
-        return;
-      }
+    try {
+      // Explicitly set Mapbox config to handle CORS and retries
+      mapboxgl.config.REQUIRE_ACCESS_TOKEN = true;
+      mapboxgl.accessToken = mapboxToken;
       
-      const newSunPosition = calculateSunPosition();
-      sunPosition.current = newSunPosition;
+      // Use light style with explicit URL
+      const styleUrl = 'mapbox://styles/mapbox/light-v11';
+      
+      // Create map with error handling
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: styleUrl,
+        center: [20, 30],
+        zoom: 1.8,
+        projection: 'globe',
+        maxBounds: [[-180, -85], [180, 85]], // Prevent extreme panning
+        attributionControl: true,
+        preserveDrawingBuffer: true,
+        antialias: true
+      });
 
-      try {
-        if (map.current.getSource('sun')) {
-          map.current.getSource('sun').setData({
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'Point',
-              coordinates: newSunPosition
+      // Add navigation controls
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+      // Handle errors during map loading
+      map.current.on('error', (e) => {
+        console.error('Mapbox map error:', e.error);
+      });
+
+      map.current.on('style.load', () => {
+        try {
+          // Enhanced atmosphere effect with space-like background
+          map.current.setFog({
+            color: 'rgb(16, 24, 40)', // deep space color
+            'high-color': 'rgb(23, 36, 84)', // dark blue space
+            'horizon-blend': 0.1,
+            'space-color': 'rgb(0, 0, 15)', // deep space black/blue
+            'star-intensity': 0.8 // more visible stars
+          });
+
+          // Add sun layer
+          map.current.addSource('sun', {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Point',
+                coordinates: sunPosition.current
+              }
             }
           });
+
+          // Add glow source for locations
+          map.current.addSource('glow-source', {
+            'type': 'geojson',
+            'data': {
+              'type': 'FeatureCollection',
+              'features': locations.lived.map(location => ({
+                'type': 'Feature',
+                'geometry': {
+                  'type': 'Point',
+                  'coordinates': location.coordinates
+                }
+              }))
+            }
+          });
+
+          // Add glow layer correctly
+          map.current.addLayer({
+            'id': 'glow',
+            'type': 'circle',
+            'source': 'glow-source',
+            'minzoom': 0,
+            'maxzoom': 22,
+            'paint': {
+              'circle-radius': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                0, 20,  // Size at zoom level 0
+                2, 20,  // Size at zoom level 2
+                4, 20,  // Size at zoom level 4
+                22, 20  // Size at max zoom
+              ],
+              'circle-color': '#FF3C00',
+              'circle-opacity': 0.4,
+              'circle-blur': 1
+            }
+          });
+
+          // Add city lights effect for lived locations
+          locations.lived.forEach((location, index) => {
+            map.current.addSource(`city-light-${index}`, {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'Point',
+                  coordinates: location.coordinates
+                }
+              }
+            });
+
+            // Add city light glow
+            map.current.addLayer({
+              id: `city-glow-${index}`,
+              type: 'circle',
+              source: `city-light-${index}`,
+              minzoom: 0,
+              maxzoom: 22,
+              paint: {
+                'circle-radius': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  0, 20,  // Size at zoom level 0
+                  2, 20,  // Size at zoom level 2
+                  4, 20,  // Size at zoom level 4
+                  22, 20  // Size at max zoom
+                ],
+                'circle-color': '#ffeb3b',
+                'circle-opacity': 0.15,
+                'circle-blur': 1
+              }
+            });
+          });
+        } catch (layerError) {
+          console.error('Error adding layers:', layerError);
+        }
+      });
+
+      // Update sun position and lighting with error handling
+      const updateSunPosition = () => {
+        if (!map.current || !map.current.isStyleLoaded()) {
+          // If style isn't loaded yet, try again in the next frame
+          animationFrame.current = requestAnimationFrame(updateSunPosition);
+          return;
+        }
+        
+        try {
+          const newSunPosition = calculateSunPosition();
+          sunPosition.current = newSunPosition;
+
+          if (map.current.getSource('sun')) {
+            map.current.getSource('sun').setData({
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Point',
+                coordinates: newSunPosition
+              }
+            });
+          }
+
+          // Update atmosphere - space-like appearance
+          map.current.setFog({
+            'color': 'rgb(16, 24, 40)', // deep space color
+            'high-color': 'rgb(23, 36, 84)', // dark blue space
+            'horizon-blend': 0.1,
+            'space-color': 'rgb(0, 0, 15)', // deep space black/blue
+            'star-intensity': 0.8 // more visible stars
+          });
+        } catch (error) {
+          console.warn('Error updating map:', error);
         }
 
-        // Update atmosphere - space-like appearance
-        map.current.setFog({
-          'color': 'rgb(16, 24, 40)', // deep space color
-          'high-color': 'rgb(23, 36, 84)', // dark blue space
-          'horizon-blend': 0.1,
-          'space-color': 'rgb(0, 0, 15)', // deep space black/blue
-          'star-intensity': 0.8 // more visible stars
-        });
-      } catch (error) {
-        console.warn('Error updating map:', error);
-      }
+        animationFrame.current = requestAnimationFrame(updateSunPosition);
+      };
 
-      animationFrame.current = requestAnimationFrame(updateSunPosition);
-    };
+      // Start sun position updates
+      updateSunPosition();
 
-    // Start sun position updates
-    updateSunPosition();
-
-    // Add gentle rotation animation - now eastward and faster
-    const startTime = Date.now();
-    const rotateGlobe = () => {
-      if (!map.current) return;
-      
-      // Calculate elapsed time
-      const elapsed = Date.now() - startTime;
-      
-      // Complete rotation in 15 seconds
-      const rotationProgress = (elapsed % 15000) / 15000;
-      
-      // Start and end at US view (-95 is roughly central US longitude)
-      const startLng = -95;
-      // Calculate longitude based on progress (rotate eastward)
-      const newLng = startLng + (rotationProgress * 360);
-      
-      map.current.setCenter([newLng, map.current.getCenter().lat]);
-      
-      // Stop rotation after one full spin
-      if (elapsed < 15000) {
-        requestAnimationFrame(rotateGlobe);
-      } else {
-        // Ensure we end exactly at the US view
-        map.current.setCenter([startLng, map.current.getCenter().lat]);
-      }
-    };
-
-    map.current.on('load', () => {
-      // Start the rotation
-      rotateGlobe();
-
-      // Calculate bounds that include all locations
-      const bounds = new mapboxgl.LngLatBounds();
-      
-      // Extend bounds with all locations
-      locations.lived.forEach(location => {
-        bounds.extend(location.coordinates);
-      });
-
-      // Fit map to show all locations with padding
-      map.current.fitBounds(bounds, {
-        padding: 50,
-        duration: 2000
-      });
-
-      // Create the pulsing dot image ONCE before the loop
-      const size = 150; // Larger radius for general areas
-      const pulsingDot = {
-        width: size,
-        height: size,
-        data: new Uint8Array(size * size * 4),
+      // Add gentle rotation animation - now eastward and faster
+      const startTime = Date.now();
+      const rotateGlobe = () => {
+        if (!map.current) return;
         
-        onAdd: function() {
-          const canvas = document.createElement('canvas');
-          canvas.width = this.width;
-          canvas.height = this.height;
-          this.context = canvas.getContext('2d');
-        },
-        
-        render: function() {
-          const duration = 1000;
-          const t = (performance.now() % duration) / duration;
+        try {
+          // Calculate elapsed time
+          const elapsed = Date.now() - startTime;
           
-          const radius = (size / 2) * 0.3;
-          const outerRadius = (size / 2) * 0.7 * t + radius;
-          const context = this.context;
+          // Complete rotation in 15 seconds
+          const rotationProgress = (elapsed % 15000) / 15000;
           
-          context.clearRect(0, 0, this.width, this.height);
-          context.beginPath();
-          context.arc(
-            this.width / 2,
-            this.height / 2,
-            outerRadius,
-            0,
-            Math.PI * 2
-          );
-          context.fillStyle = `rgba(255, 60, 0, ${1 - t})`;
-          context.fill();
+          // Start and end at US view (-95 is roughly central US longitude)
+          const startLng = -95;
+          // Calculate longitude based on progress (rotate eastward)
+          const newLng = startLng + (rotationProgress * 360);
           
-          context.beginPath();
-          context.arc(
-            this.width / 2,
-            this.height / 2,
-            radius,
-            0,
-            Math.PI * 2
-          );
-          context.fillStyle = 'rgba(255, 60, 0, 1)';
-          context.strokeStyle = 'white';
-          context.lineWidth = 2 + 4 * (1 - t);
-          context.fill();
-          context.stroke();
+          map.current.setCenter([newLng, map.current.getCenter().lat]);
           
-          this.data = context.getImageData(
-            0,
-            0,
-            this.width,
-            this.height
-          ).data;
-          
-          map.current.triggerRepaint();
-          return true;
+          // Stop rotation after one full spin
+          if (elapsed < 15000) {
+            requestAnimationFrame(rotateGlobe);
+          } else {
+            // Ensure we end exactly at the US view
+            map.current.setCenter([startLng, map.current.getCenter().lat]);
+          }
+        } catch (error) {
+          console.warn('Error in rotation animation:', error);
         }
       };
 
-      // Add the image ONCE before the loop
-      map.current.addImage('pulsing-dot-lived', pulsingDot, { pixelRatio: 2 });
+      map.current.on('load', () => {
+        try {
+          // Start the rotation
+          rotateGlobe();
 
-      // Now add sources and layers for each location
-      locations.lived.forEach(location => {
-        // Add a layer for the larger radius area
-        map.current.addSource(`area-lived-${location.name}`, {
-          'type': 'geojson',
-          'data': {
-            'type': 'Feature',
-            'geometry': {
-              'type': 'Point',
-              'coordinates': location.coordinates
+          // Calculate bounds that include all locations
+          const bounds = new mapboxgl.LngLatBounds();
+          
+          // Extend bounds with all locations
+          locations.lived.forEach(location => {
+            bounds.extend(location.coordinates);
+          });
+
+          // Fit map to show all locations with padding
+          map.current.fitBounds(bounds, {
+            padding: 50,
+            duration: 2000
+          });
+
+          // Create the pulsing dot image ONCE before the loop
+          const size = 150; // Larger radius for general areas
+          const pulsingDot = {
+            width: size,
+            height: size,
+            data: new Uint8Array(size * size * 4),
+            
+            onAdd: function() {
+              const canvas = document.createElement('canvas');
+              canvas.width = this.width;
+              canvas.height = this.height;
+              this.context = canvas.getContext('2d');
+            },
+            
+            render: function() {
+              const duration = 1000;
+              const t = (performance.now() % duration) / duration;
+              
+              const radius = (size / 2) * 0.3;
+              const outerRadius = (size / 2) * 0.7 * t + radius;
+              const context = this.context;
+              
+              context.clearRect(0, 0, this.width, this.height);
+              context.beginPath();
+              context.arc(
+                this.width / 2,
+                this.height / 2,
+                outerRadius,
+                0,
+                Math.PI * 2
+              );
+              context.fillStyle = `rgba(255, 60, 0, ${1 - t})`;
+              context.fill();
+              
+              context.beginPath();
+              context.arc(
+                this.width / 2,
+                this.height / 2,
+                radius,
+                0,
+                Math.PI * 2
+              );
+              context.fillStyle = 'rgba(255, 60, 0, 1)';
+              context.strokeStyle = 'white';
+              context.lineWidth = 2 + 4 * (1 - t);
+              context.fill();
+              context.stroke();
+              
+              this.data = context.getImageData(
+                0,
+                0,
+                this.width,
+                this.height
+              ).data;
+              
+              map.current.triggerRepaint();
+              return true;
             }
+          };
+
+          // Add the image ONCE before the loop - with error handling
+          if (!map.current.hasImage('pulsing-dot-lived')) {
+            map.current.addImage('pulsing-dot-lived', pulsingDot, { pixelRatio: 2 });
           }
-        });
 
-        map.current.addLayer({
-          'id': `area-lived-${location.name}`,
-          'type': 'symbol',
-          'source': `area-lived-${location.name}`,
-          'minzoom': 0,
-          'maxzoom': 22,
-          'layout': {
-            'icon-image': 'pulsing-dot-lived',
-            'icon-size': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              0, 1,    // Size at zoom level 0
-              2, 1,    // Size at zoom level 2
-              4, 1,    // Size at zoom level 4
-              22, 1    // Size at max zoom
-            ],
-            'icon-allow-overlap': true,
-            'icon-ignore-placement': true
-          }
-        });
+          // Now add sources and layers for each location
+          locations.lived.forEach(location => {
+            const sourceId = `area-lived-${location.name.replace(/\s+/g, '-').toLowerCase()}`;
+            const layerId = `area-${location.name.replace(/\s+/g, '-').toLowerCase()}`;
+            
+            // Add a layer for the larger radius area
+            map.current.addSource(sourceId, {
+              'type': 'geojson',
+              'data': {
+                'type': 'Feature',
+                'geometry': {
+                  'type': 'Point',
+                  'coordinates': location.coordinates
+                }
+              }
+            });
 
-        // Add popup
-        const popup = new mapboxgl.Popup({
-          closeButton: false,
-          closeOnClick: false
-        });
+            map.current.addLayer({
+              'id': layerId,
+              'type': 'symbol',
+              'source': sourceId,
+              'minzoom': 0,
+              'maxzoom': 22,
+              'layout': {
+                'icon-image': 'pulsing-dot-lived',
+                'icon-size': [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  0, 1,    // Size at zoom level 0
+                  2, 1,    // Size at zoom level 2
+                  4, 1,    // Size at zoom level 4
+                  22, 1    // Size at max zoom
+                ],
+                'icon-allow-overlap': true,
+                'icon-ignore-placement': true
+              }
+            });
 
-        map.current.on('mouseenter', `area-lived-${location.name}`, () => {
-          popup.setLngLat(location.coordinates)
-            .setHTML(`<h3 class="font-bold">${location.name}</h3>`)
-            .addTo(map.current);
-        });
+            // Add popup
+            const popup = new mapboxgl.Popup({
+              closeButton: false,
+              closeOnClick: false
+            });
 
-        map.current.on('mouseleave', `area-lived-${location.name}`, () => {
-          popup.remove();
-        });
+            map.current.on('mouseenter', layerId, () => {
+              popup.setLngLat(location.coordinates)
+                .setHTML(`<h3 class="font-bold">${location.name}</h3>`)
+                .addTo(map.current);
+            });
+
+            map.current.on('mouseleave', layerId, () => {
+              popup.remove();
+            });
+          });
+
+          // Add space-like atmosphere effect
+          map.current.setFog({
+            'range': [0.8, 8],
+            'color': 'rgb(16, 24, 40)', // deep space color
+            'high-color': 'rgb(23, 36, 84)', // dark blue space
+            'horizon-blend': 0.1,
+            'space-color': 'rgb(0, 0, 15)', // deep space black/blue
+            'star-intensity': 0.8 // more visible stars
+          });
+        } catch (error) {
+          console.error('Error in map load handler:', error);
+        }
       });
-
-      // Add space-like atmosphere effect
-      map.current.setFog({
-        'range': [0.8, 8],
-        'color': 'rgb(16, 24, 40)', // deep space color
-        'high-color': 'rgb(23, 36, 84)', // dark blue space
-        'horizon-blend': 0.1,
-        'space-color': 'rgb(0, 0, 15)', // deep space black/blue
-        'star-intensity': 0.8 // more visible stars
-      });
-    });
+    } catch (error) {
+      console.error('Error initializing Mapbox:', error);
+    }
 
     return () => {
       if (animationFrame.current) {
@@ -425,9 +468,7 @@ useEffect(() => {
       }
       map.current?.remove();
     };
-  }, [mapboxgl]);
-
-  // No style change effect needed anymore
+  }, [mapboxgl, mapboxToken]);
 
   return (
     <div 
@@ -452,8 +493,8 @@ const MapWithNoSSR = dynamic(
 
 export default function Travel() {
   return (
-<div className="container mx-auto">
-<section className="pt-24 pb-20 bg-background">
+    <div className="container mx-auto">
+      <section className="pt-24 pb-20 bg-background">
         <div className="max-w-5xl mx-auto px-4">
           <h1 className="text-4xl font-bold mb-8 font-[family-name:var(--font-geist-mono)]">Places I&apos;ve Called Home</h1>
           <p className="text-foreground/70 mb-8">

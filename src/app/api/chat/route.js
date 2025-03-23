@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import logger from '../../../../utils/logger';
 
 // Initialize OpenAI client with Groq API base
 const openai = new OpenAI({
@@ -83,6 +84,7 @@ export async function POST(request) {
 
     // Validate request
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      logger.warn('Validation failed: Messages array is required');
       return NextResponse.json(
         { error: 'Messages array is required' },
         { status: 400 }
@@ -97,6 +99,9 @@ export async function POST(request) {
       });
     }
 
+    // Log the incoming messages
+    logger.info('Received messages:', { messages });
+
     // Call Groq API through OpenAI SDK
     const response = await openai.chat.completions.create({
       model: 'qwen-2.5-coder-32b',
@@ -105,13 +110,16 @@ export async function POST(request) {
       max_tokens: 500,
     });
 
+    // Log the response from the API
+    logger.info('Received response from Groq API:', { response: response.choices[0].message });
+
     // Return the response
     return NextResponse.json({
       message: response.choices[0].message.content,
       role: response.choices[0].message.role,
     });
   } catch (error) {
-    console.error('Chat API error:', error);
+    logger.error('Chat API error:', error);
     return NextResponse.json(
       { error: 'Something went wrong with the Groq request' },
       { status: 500 }
